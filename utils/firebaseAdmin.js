@@ -1,11 +1,23 @@
-const admin = require("firebase-admin");
+import admin from "firebase-admin";
 
-if (!admin.apps.length) {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+let serviceAccount = process.env.FIREBASE_ADMIN_KEY;
 
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-    });
+if (!serviceAccount) {
+  console.error("❌ FIREBASE_ADMIN_KEY is missing!");
+  process.exit(1);
 }
 
-module.exports = admin;
+try {
+  serviceAccount = JSON.parse(serviceAccount);
+} catch (error) {
+  console.error("❌ FIREBASE_ADMIN_KEY JSON parse error:", error.message);
+  process.exit(1);
+}
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
+
+export default admin;
